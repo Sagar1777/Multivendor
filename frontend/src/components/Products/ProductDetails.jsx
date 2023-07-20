@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllProductsShop } from "../../redux/actions/product";
 import styles from "../../styles/styles";
@@ -15,9 +15,17 @@ import { useDispatch, useSelector } from "react-redux";
 const ProductDetails = ({ data }) => {
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
-  const { products } = useSelector((state) => state.products);
   const navigate = useNavigate();
   const [select, setSelect] = useState(0); 
+  const { products } = useSelector((state) => state.products);
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+dispatch(getAllProductsShop(data && data?.shop._id))
+  }, [dispatch, data])
+
+  
+
    const incrementCount = () => {
     setCount(count + 1);
   };

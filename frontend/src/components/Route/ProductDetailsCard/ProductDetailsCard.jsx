@@ -13,9 +13,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 const ProductDetailsCard = ({ setOpen, data }) => {
+  const dispatch = useDispatch();
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
-  const dispatch = useDispatch();
 
   const handleMessageSubmit = () => {};
 

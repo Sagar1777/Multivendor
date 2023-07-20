@@ -7,6 +7,7 @@ import "./App.css";
 import Store from './redux/store';
 import {  loadUser } from './redux/actions/user';
 import {  loadSeller } from './redux/actions/user';
+import { getAllProducts } from "./redux/actions/product"
 import { HomePage, ProductsPage, ProductDetailsPage, ProfilePage, FAQPage, ShopCreatePage, ShopLoginPage, BestSellingPage, LoginPage, OrderSuccessPage, CheckoutPage, SignupPage, ActivationPage, SellerActivationPage,   } from './routes/Routes';
 import ProtectedRoute from './routes/ProtectedRoute';
 import { ShopDashboardPage, ShopCreateProduct, ShopAllProducts, ShopAllCoupouns, 
@@ -22,6 +23,7 @@ const App = () => {
   useEffect(() => {
     dispatch(loadUser());
     dispatch(loadSeller());
+    dispatch(getAllProducts());
   }, []);
 
   return (

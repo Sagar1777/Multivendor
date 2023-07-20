@@ -6,15 +6,17 @@ import { productData } from "../static/data";
 import { useSelector } from "react-redux";
 
 const ProductDetailsPage = () => {
-  const { products } = useSelector((state) => state.products);
+  const { allProducts } = useSelector((state) => state.products);
   const { name } = useParams();
+  console.log("name:",name)
   const [data, setData] = useState(null);
   const productName =  name.replace(/-/g, " ");
+  console.log("product name:", productName)
 
   useEffect(() => {
-    const data = products.find((i) => i.name === productName);
+    const data = allProducts?.find((i) => i.name === productName);
     setData(data); // Set data to null if product is not found
-  }, []);
+  }, [allProducts]);
 
   return (
     <div>
@@ -22,7 +24,7 @@ const ProductDetailsPage = () => {
       {data ? (
         <ProductDetails data={data} />
       ) : (
-        <p>Product not found.</p>
+        <p>Loading....</p>
       )}
     </div>
   );
