@@ -7,16 +7,16 @@ import { useSelector } from "react-redux";
 
 const ProductDetailsPage = () => {
   const { allProducts } = useSelector((state) => state.products);
-  const { name } = useParams();
-  console.log("name:",name)
+  const { id } = useParams();
+  // console.log("name:",name)
   const [data, setData] = useState(null);
-  const productName =  name.replace(/-/g, " ");
-  console.log("product name:", productName)
+  // const productName =  name.replace(/-/g, " ");
+  // console.log("product name:", productName)
 
   useEffect(() => {
-    const data = allProducts?.find((i) => i.name === productName);
+    const data = allProducts?.find((i) => i._id === id);
     setData(data); // Set data to null if product is not found
-  }, [allProducts]);
+  }, [data,allProducts]);
 
   return (
     <div>

@@ -4,33 +4,56 @@ import { getAllProductsShop } from "../../redux/actions/product";
 import styles from "../../styles/styles";
 import { Link } from "react-router-dom";
 import { backend_url, server } from "../../server";
+import Ratings from "./Ratings";
 import {
   AiFillHeart,
   AiOutlineHeart,
   AiOutlineMessage,
   AiOutlineShoppingCart,
-} from "react-icons/ai";
+} from "react-icons/ai";import {
+  addToWishlist,
+  removeFromWishlist,
+} from "../../redux/actions/wishlist";
+import { addTocart } from "../../redux/actions/cart";
+import { toast } from "react-toastify";
+import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 
 const ProductDetails = ({ data }) => {
+  const { wishlist } = useSelector((state) => state.wishlist);
+  const { cart } = useSelector((state) => state.cart);
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+  const { products } = useSelector((state) => state.products);
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
+  const [select, setSelect] = useState(0);
   const navigate = useNavigate();
-  const [select, setSelect] = useState(0); 
-  const { products } = useSelector((state) => state.products);
+  const dispatch = useDispatch(); 
+  const totalReviewsLength = products && products.reduce((acc, product) => acc + product.reviews.length, 0);
 
-  const dispatch = useDispatch();
+const totalRatings =
+  products &&
+  products.reduce(
+    (acc, product) =>
+      acc + product.reviews.reduce((sum, review) => sum + review.rating, 0),
+    0
+  );
+
+const avg =  totalRatings / totalReviewsLength || 0;
+
+const averageRating = avg.toFixed(2);
+
   useEffect(() => {
-dispatch(getAllProductsShop(data && data?.shop._id))
-  }, [dispatch, data])
+    dispatch(getAllProductsShop(data && data?.shop._id));
+    if (wishlist && wishlist.find((i) => i._id === data?._id)) {
+      setClick(true);
+    } else {
+      setClick(false);
+    }
+  }, [data, wishlist]);
 
-  
-
-   const incrementCount = () => {
+  const incrementCount = () => {
     setCount(count + 1);
-  };
-  const handleMessageSubmit = async () => {
-   navigate("/inbox?conversation=4r7ui9876kjf6789okjgfdf");
   };
 
   const decrementCount = () => {
@@ -38,6 +61,36 @@ dispatch(getAllProductsShop(data && data?.shop._id))
       setCount(count - 1);
     }
   };
+
+  const removeFromWishlistHandler = (data) => {
+    setClick(!click);
+    dispatch(removeFromWishlist(data));
+  };
+
+  const addToWishlistHandler = (data) => {
+    setClick(!click);
+    dispatch(addToWishlist(data));
+  };
+
+  const addToCartHandler = (id) => {
+    const isItemExists = cart && cart.find((i) => i._id === id);
+    if (isItemExists) {
+      toast.error("Item already in cart!");
+    } else {
+      if (data.stock < 1) {
+        toast.error("Product stock limited!");
+      } else {
+        const cartData = { ...data, qty: count };
+        dispatch(addTocart(cartData));
+        toast.success("Item added to cart successfully!");
+      }
+    }
+  };
+
+  const handleMessageSubmit = async () => {
+   navigate("/inbox?conversation=4r7ui9876kjf6789okjgfdf");
+  };
+
 
   return (
     
@@ -106,37 +159,38 @@ dispatch(getAllProductsShop(data && data?.shop._id))
                     </button>
                   </div>
 
-                  
-
                   <div>
                     {click ? (
                       <AiFillHeart
                         size={30}
-                        className="cursor-pointer ml-4"
-                        onClick={() => setClick(!click)}
+                        className="cursor-pointer"
+                        onClick={() => removeFromWishlistHandler(data)}
                         color={click ? "red" : "#333"}
                         title="Remove from wishlist"
                       />
                     ) : (
                       <AiOutlineHeart
                         size={30}
-                        className="cursor-pointer ml-4"
-                        onClick={() => setClick(!click)}
+                        className="cursor-pointer"
+                        onClick={() => addToWishlistHandler(data)}
                         color={click ? "red" : "#333"}
                         title="Add to wishlist"
                       />
                     )}
                   </div>
                 </div>
+
                 <div
-                  className={`${styles.button} mt-6 rounded-[4px] h-11 flex items-center`}
+                  className={`${styles.button} !mt-6 !rounded !h-11 flex items-center`}
+                  onClick={() => addToCartHandler(data._id)}
                 >
-                  <span className="text-[#fff] flex items-center">
+                  <span className="text-white flex items-center">
                     Add to cart <AiOutlineShoppingCart className="ml-1" />
                   </span>
                 </div>
+
                 <div className="flex items-center pt-8">
-                <Link to={`/shop/preview/${data?.shop._id}`}>
+                  <Link to={`/shop/preview/${data?.shop._id}`}>
                     <img
                       src={`${backend_url}${data?.shop?.avatar}`}
                       alt=""
@@ -144,16 +198,14 @@ dispatch(getAllProductsShop(data && data?.shop._id))
                     />
                   </Link>
                   <div className="pr-8">
-                  <Link to={`/shop/preview/${data?.shop._id}`}>
+                    <Link to={`/shop/preview/${data?.shop._id}`}>
                       <h3 className={`${styles.shop_name} pb-1 pt-1`}>
                         {data.shop.name}
                       </h3>
                     </Link>
-                    
-                      <h5 className="pb-3 text-[15px]">
-                          (4.5) Ratings
-                              </h5>
-
+                    <h5 className="pb-3 text-[15px]">
+                      (4.5) Ratings
+                    </h5>
                   </div>
                   <div
                     className={`${styles.button} bg-[#6443d1] mt-4 !rounded !h-11`}
@@ -171,6 +223,8 @@ dispatch(getAllProductsShop(data && data?.shop._id))
           <ProductDetailsInfo
             data={data}
             products={products}
+            totalReviewsLength={totalReviewsLength}
+            averageRating={averageRating}
           />
 
         </div>
@@ -182,6 +236,8 @@ dispatch(getAllProductsShop(data && data?.shop._id))
 const ProductDetailsInfo = ({
   data,
   products,
+  totalReviewsLength,
+  averageRating,
 }) => {
   const [active, setActive] = useState(1);
 
@@ -236,41 +292,61 @@ const ProductDetailsInfo = ({
           </p>
         </>
       ) : null}
- {
-  active === 2 ? (
-   <div className='w-full justify-center min-h-[40vh] flex items-center'>
-    <p>No reviews yet</p>
-   </div>
-  ) : null
- }
+ 
+ {active === 2 ? (
+        <div className="w-full min-h-[40vh] flex flex-col items-center py-3 overflow-y-scroll">
+          {data &&
+            data.reviews.map((item, index) => (
+              <div className="w-full flex my-2">
+                <img
+                  src={`${backend_url}/${item.user.avatar}`}
+                  alt=""
+                  className="w-[50px] h-[50px] rounded-full"
+                />
+                <div className="pl-2 ">
+                  <div className="w-full flex items-center">
+                    <h1 className="font-[500] mr-3">{item.user.name}</h1>
+                    <Ratings rating={data?.ratings} />
+                  </div>
+                  <p>{item.comment}</p>
+                </div>
+              </div>
+            ))}
 
-{
-  active === 3 && (
-    <div className="w-full block 800px:flex p-5">
-    <div className="w-full 800px:w-[50%]">
-            <Link to={`/shop/preview/${data.shop._id}`}>
-        <div className="flex items-center">
-          <img src={`${backend_url}${data?.shop?.avatar}`}
-            className="w-[50px] h-[50px] rounded-full"
-            alt=""
-          />
-          <div className="pl-3">
-            <h3 className={`${styles.shop_name}`}>{data.shop.name}</h3>
-            <h5 className="pb-2 text-[15px]">
-              (4.4) Ratings
-            </h5>
+          <div className="w-full flex justify-center">
+            {data && data.reviews.length === 0 && (
+              <h5>No Reviews have for this product!</h5>
+            )}
           </div>
         </div>
-        </Link>
-        <p className="pt-2">{data.shop.description}</p>
-        
-        </div>
-        <div className="w-full 800px:w-[50%] mt-5 800px:mt-0 800px:flex flex-col items-end">
+      ) : null}
+
+{active === 3 && (
+        <div className="w-full block 800px:flex p-5">
+          <div className="w-full 800px:w-[50%]">
+            <Link to={`/shop/preview/${data.shop._id}`}>
+              <div className="flex items-center">
+                <img
+                  src={`${backend_url}${data?.shop?.avatar}`}
+                  className="w-[50px] h-[50px] rounded-full"
+                  alt=""
+                />
+                <div className="pl-3">
+                  <h3 className={`${styles.shop_name}`}>{data.shop.name}</h3>
+                  <h5 className="pb-2 text-[15px]">
+                    ({averageRating}/5) Ratings
+                  </h5>
+                </div>
+              </div>
+            </Link>
+            <p className="pt-2">{data.shop.description}</p>
+          </div>
+          <div className="w-full 800px:w-[50%] mt-5 800px:mt-0 800px:flex flex-col items-end">
             <div className="text-left">
               <h5 className="font-[600]">
                 Joined on:{" "}
-                <span className="font-[500]">  {data.shop?.createdAt?.slice(0, 10)}
-              
+                <span className="font-[500]">
+                  {data.shop?.createdAt?.slice(0, 10)}
                 </span>
               </h5>
               <h5 className="font-[600] pt-3">
@@ -281,7 +357,7 @@ const ProductDetailsInfo = ({
               </h5>
               <h5 className="font-[600] pt-3">
                 Total Reviews:{" "}
-                <span className="font-[500]">85</span>
+                <span className="font-[500]">{totalReviewsLength}</span>
               </h5>
               <Link to="/">
                 <div
@@ -293,7 +369,7 @@ const ProductDetailsInfo = ({
             </div>
           </div>
         </div>
-  )}
+      )}
       </div>
       
   );
