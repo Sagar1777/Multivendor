@@ -10,11 +10,20 @@ import { getAllProducts } from "./redux/actions/product"
 import { HomePage, ProductsPage, ProductDetailsPage, ProfilePage, FAQPage, ShopCreatePage, ShopLoginPage, BestSellingPage, LoginPage, OrderSuccessPage, CheckoutPage, SignupPage, ActivationPage, SellerActivationPage, PaymentPage, OrderDetailsPage, TrackOrderPage, } from './routes/Routes';
 import ProtectedRoute from './routes/ProtectedRoute';
 import { ShopDashboardPage, ShopCreateProduct, ShopAllProducts, ShopAllCoupouns, ShopPreviewPage, ShopAllOrders, ShopOrderDetails,ShopAllRefunds, ShopSettingsPage, ShopWithDrawMoneyPage, } from './routes/ShopRoutes';
+import {
+  AdminDashboardPage,
+  AdminDashboardSellers,
+  AdminDashboardUsers,
+  AdminDashboardOrders,
+  AdminDashboardProducts,
+  AdminDashboardWithdraw
+} from "./routes/AdminRoutes";
 import SellerProtectedRoute from './routes/SellerProtectedRoute';
 import { ShopHomePage } from './ShopRoutes';
 import { Elements } from '@stripe/react-stripe-js';
 import { server } from "./server";
 import { loadStripe } from '@stripe/stripe-js';
+import ProtectedAdminRoute from "./routes/ProtectedAdminRoute";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -177,6 +186,45 @@ const App = () => {
             </SellerProtectedRoute>
           }
         />
+
+<Route
+            path="/admin/dashboard"
+            element={
+                <AdminDashboardPage />
+            }
+          />
+        <Route
+          path="/admin-users"
+          element={
+              <AdminDashboardUsers />
+          }
+        />
+        <Route
+          path="/admin-sellers"
+          element={
+              <AdminDashboardSellers />
+          }
+        />
+        <Route
+          path="/admin-orders"
+          element={
+              <AdminDashboardOrders />
+          }
+        />
+         <Route
+          path="/admin-products"
+          element={
+              <AdminDashboardProducts />
+          }
+        />
+         
+         <Route
+          path="/admin-withdraw-request"
+          element={
+              <AdminDashboardWithdraw />
+          }
+        />
+
           </Routes>
         </Elements>
       )}
