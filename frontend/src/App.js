@@ -190,38 +190,50 @@ const App = () => {
 <Route
             path="/admin/dashboard"
             element={
+              <ProtectedAdminRoute>
                 <AdminDashboardPage />
+              </ProtectedAdminRoute>
             }
           />
         <Route
           path="/admin-users"
           element={
+            <ProtectedAdminRoute>
               <AdminDashboardUsers />
+            </ProtectedAdminRoute>
           }
         />
         <Route
           path="/admin-sellers"
           element={
+            <ProtectedAdminRoute>
               <AdminDashboardSellers />
+            </ProtectedAdminRoute>
           }
         />
         <Route
           path="/admin-orders"
           element={
+            <ProtectedAdminRoute>
               <AdminDashboardOrders />
+            </ProtectedAdminRoute>
           }
         />
          <Route
           path="/admin-products"
           element={
+            <ProtectedAdminRoute>
               <AdminDashboardProducts />
+            </ProtectedAdminRoute>
           }
         />
          
          <Route
           path="/admin-withdraw-request"
           element={
+            <ProtectedAdminRoute>
               <AdminDashboardWithdraw />
+            </ProtectedAdminRoute>
           }
         />
 
